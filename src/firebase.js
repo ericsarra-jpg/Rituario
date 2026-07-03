@@ -3,12 +3,12 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyACbCy-O8MhXnR0EOJO3AxVki0nwyoFsLQ",
-  authDomain: "ritual-cbee0.firebaseapp.com",
-  projectId: "ritual-cbee0",
-  storageBucket: "ritual-cbee0.firebasestorage.app",
-  messagingSenderId: "341380063392",
-  appId: "1:341380063392:web:7947a289f246a9ae47e9c5"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
