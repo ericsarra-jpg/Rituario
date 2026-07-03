@@ -128,7 +128,6 @@ function attachCloudListener() {
       const cloudData = snap.data();
       const cloudTime = cloudData.updatedAt || 0;
       const localTime = state.updatedAt || 0;
-
       if (cloudTime > localTime) {
         suppressNextWrite = true;
         state = cloudData;
@@ -139,7 +138,6 @@ function attachCloudListener() {
         if (activeTab === 'monthly') renderMonthly();
         renderCalendar();
       }
-      // Si cloudTime <= localTime, el local ya está actualizado o es más nuevo → no hacemos nada.
     } else {
       pushToCloud();
     }
