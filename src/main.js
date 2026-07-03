@@ -100,6 +100,7 @@ function load() {
 }
 
 function save(pushCloud = true) {
+  state.updatedAt = Date.now();
   localStorage.setItem(STORE_KEY, JSON.stringify(state));
   if (pushCloud) {
     if (suppressNextWrite) { suppressNextWrite = false; return; }
@@ -124,14 +125,21 @@ function attachCloudListener() {
   if (!syncCode) return;
   onSnapshot(doc(db, 'rituario_users', syncCode), snap => {
     if (snap.exists()) {
-      suppressNextWrite = true;
-      state = snap.data();
-      if (!state.monthlyHabits) state.monthlyHabits = [];
-      if (!state.monthlyLog)    state.monthlyLog = {};
-      save(false);
-      render();
-      if (activeTab === 'monthly') renderMonthly();
-      renderCalendar();
+      const cloudData = snap.data();
+      const cloudTime = cloudData.updatedAt || 0;
+      const localTime = state.updatedAt || 0;
+
+      if (cloudTime > localTime) {
+        suppressNextWrite = true;
+        state = cloudData;
+        if (!state.monthlyHabits) state.monthlyHabits = [];
+        if (!state.monthlyLog)    state.monthlyLog = {};
+        save(false);
+        render();
+        if (activeTab === 'monthly') renderMonthly();
+        renderCalendar();
+      }
+      // Si cloudTime <= localTime, el local ya está actualizado o es más nuevo → no hacemos nada.
     } else {
       pushToCloud();
     }
