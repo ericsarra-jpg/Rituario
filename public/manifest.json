@@ -1,0 +1,16 @@
+﻿{
+  "name": "Rituario",
+  "short_name": "Rituario",
+  "description": "Seguimiento de hábitos diarios y mensuales",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2ede1",
+  "theme_color": "#c1440e",
+  "icons": [
+    {
+      "src": "/icons.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
