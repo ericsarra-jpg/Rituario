@@ -112,8 +112,11 @@ function save(pushCloud = true) {
 // ─── FIREBASE ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, user => {
   currentUser = user;
-  if (!user) {
-    signInAnonymously(auth).catch(() => setSyncStatus('off'));
+  if (!user || user.isAnonymous) {
+    if (unsubscribeCloud) { unsubscribeCloud(); unsubscribeCloud = null; }
+    updateAccountUI(user);
+    setSyncStatus('off');
+    if (!user) signInAnonymously(auth).catch(() => setSyncStatus('off'));
     return;
   }
   if (syncCode && syncCode !== user.uid) {
@@ -121,6 +124,8 @@ onAuthStateChanged(auth, user => {
     render();
   }
   syncCode = user.uid;
+  localStorage.setItem(CODE_KEY, syncCode);
+  updateAccountUI(user);
   attachCloudListener();
 });
 
@@ -182,9 +187,10 @@ async function signInWithGoogle() {
 
 async function signOutGoogle() {
   if (unsubscribeCloud) { unsubscribeCloud(); unsubscribeCloud = null; }
-  await signOut(auth);
-  localStorage.removeItem(CODE_KEY);
   syncCode = null;
+  localStorage.removeItem(CODE_KEY);
+  localStorage.removeItem(STORE_KEY);
+  await signOut(auth);
   closeLinkSheet();
   location.reload();
 }
