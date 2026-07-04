@@ -106,8 +106,15 @@ h1{ font-family:'Fraunces', serif; font-weight:600; font-size:30px; margin:0 0 6
 .chev{ font-size:11px; color:rgba(var(--ink-rgb),0.25); flex-shrink:0; padding:4px;}
 .add-card{ border-style:dashed; justify-content:center; color:rgba(var(--ink-rgb),0.45); font-size:13px; gap:8px; box-shadow:none; }
 .add-card .seal{ border-style:dashed; background:transparent; }
-.summary{ margin-top:30px; padding-top:18px; border-top:1px solid var(--line); text-align:center; font-size:12.5px; color:rgba(var(--ink-rgb),0.5); letter-spacing:0.02em; }
+.summary{ margin-top:30px; padding-top:18px; border-top:1px solid var(--line); font-size:12.5px; color:rgba(var(--ink-rgb),0.5); letter-spacing:0.02em; }
 .summary b{ color:var(--ink); font-weight:600; }
+.summary-today{ text-align:center; margin-bottom:14px; }
+.summary-month{ display:flex; align-items:center; gap:10px; }
+.month-pct-label{ font-size:11.5px; color:rgba(var(--ink-rgb),0.45); white-space:nowrap; min-width:52px; }
+.month-pct-bar-wrap{ flex:1; height:5px; border-radius:3px; background:var(--paper-deep); overflow:hidden; }
+.month-pct-bar{ display:block; height:100%; border-radius:3px; background:var(--moss); transition:width .4s cubic-bezier(.22,1,.36,1); }
+.month-pct-num{ font-size:11.5px; font-weight:600; color:var(--moss); min-width:30px; text-align:right; }
+.habit-streak{ font-size:11px; font-weight:600; color:var(--clay); background:rgba(var(--ink-rgb),0.06); border-radius:999px; padding:3px 8px; white-space:nowrap; flex-shrink:0; }
 .overlay{ position:fixed; inset:0; background:rgba(var(--ink-rgb),0.45); backdrop-filter:blur(2px); display:none; align-items:flex-end; justify-content:center; z-index:50; }
 .overlay.open{ display:flex; }
 .sheet{ background:var(--paper); width:100%; max-width:480px; border-radius:24px 24px 0 0; padding:26px 22px 30px; animation:up .25s cubic-bezier(.22,1,.36,1); }

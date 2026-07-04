@@ -236,6 +236,10 @@ function render() {
   state.habits.forEach(h => {
     const done = !!todayLog[h.id];
     const readonlyClass = isPast ? ' readonly' : '';
+    const streak = getHabitStreak(h.id);
+    const streakHtml = streak >= 2
+      ? `<div class="habit-streak">${streak >= 7 ? '🔥' : '⚡'} ${streak}d</div>`
+      : '';
     list.insertAdjacentHTML('beforeend', `
       <div class="card${done ? ' done' : ''}${readonlyClass}" style="--accent:${h.color}" data-id="${h.id}">
         <div class="seal">
@@ -246,6 +250,7 @@ function render() {
           <div class="name">${escapeHtml(h.name)}</div>
           ${h.sub ? `<div class="sub">${escapeHtml(h.sub)}</div>` : ''}
         </div>
+        ${streakHtml}
         <div class="chev" data-edit="${h.id}">✎</div>
       </div>`);
   });
@@ -287,7 +292,16 @@ function renderSummary() {
   const isPast   = viewKey !== todayKey();
   const el       = document.getElementById('summary');
   if (total === 0) { el.innerHTML = ''; return; }
-  el.innerHTML = `<b>${done}/${total}</b> ${isPast ? 'completados ese día' : 'completados hoy'}`;
+  const pct = getMonthCompletion();
+  const now = new Date();
+  const monthName = now.toLocaleDateString('es-ES', { month: 'long' });
+  el.innerHTML = `
+    <div class="summary-today"><b>${done}/${total}</b> ${isPast ? 'completados ese día' : 'completados hoy'}</div>
+    <div class="summary-month">
+      <span class="month-pct-label">${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</span>
+      <span class="month-pct-bar-wrap"><span class="month-pct-bar" style="width:${pct}%"></span></span>
+      <span class="month-pct-num">${pct}%</span>
+    </div>`;
 }
 
 // ─── RENDER MENSUAL ──────────────────────────────────────────────────────────
@@ -375,6 +389,34 @@ function dayStatus(key) {
   if (total === 0 || !log) return 'nodata';
   const missing = total - state.habits.filter(h => log[h.id]).length;
   return missing === 0 ? 'green' : missing <= 2 ? 'yellow' : 'red';
+}
+
+function getHabitStreak(habitId) {
+  let streak = 0;
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  while (streak < 365) {
+    const key = formatDateKey(d);
+    if (state.log[key] && state.log[key][habitId]) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function getMonthCompletion() {
+  const now = new Date();
+  const daysUpToToday = now.getDate();
+  let completed = 0;
+  for (let day = 1; day <= daysUpToToday; day++) {
+    const date = new Date(now.getFullYear(), now.getMonth(), day);
+    const key = formatDateKey(date);
+    if (dayComplete(key)) completed++;
+  }
+  return daysUpToToday > 0 ? Math.round((completed / daysUpToToday) * 100) : 0;
 }
 
 // ─── PESTAÑAS ────────────────────────────────────────────────────────────────
