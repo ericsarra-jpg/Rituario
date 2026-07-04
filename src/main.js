@@ -228,12 +228,19 @@ function render() {
   document.getElementById('dateline').textContent =
     currentViewDate.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long'});
 
+  // Título dinámico de la pestaña del navegador
+  const todayLogTab = state.log[todayKey()] || {};
+  const doneTodayTab = state.habits.filter(h => todayLogTab[h.id]).length;
+  document.title = state.habits.length > 0
+    ? `Rituario — ${doneTodayTab}/${state.habits.length} hoy`
+    : 'Rituario';
+
   updateDateNav();
 
   // Lista de hábitos
   const list = document.getElementById('habitsList');
   list.innerHTML = '';
-  state.habits.forEach(h => {
+  state.habits.forEach((h, idx) => {
     const done = !!todayLog[h.id];
     const readonlyClass = isPast ? ' readonly' : '';
     const streak = getHabitStreak(h.id);
@@ -241,7 +248,7 @@ function render() {
       ? `<div class="habit-streak">${streak >= 7 ? '🔥' : '⚡'} ${streak}d</div>`
       : '';
     list.insertAdjacentHTML('beforeend', `
-      <div class="card${done ? ' done' : ''}${readonlyClass}" style="--accent:${h.color}" data-id="${h.id}">
+      <div class="card${done ? ' done' : ''}${readonlyClass}" style="--accent:${h.color};animation-delay:${idx * 0.06}s" data-id="${h.id}">
         <div class="seal">
           <span class="icon-glyph">${h.icon}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -271,8 +278,12 @@ function renderStreak() {
     else break;
     if (i < -60) break;
   }
-  document.getElementById('streakNum').textContent =
-    streak === 0 ? 'Empieza hoy' : `${streak} día${streak>1?'s':''} seguido${streak>1?'s':''}`;
+  let streakMsg;
+  if (streak === 0)       streakMsg = 'Empieza hoy 🌱';
+  else if (streak < 7)   streakMsg = `⚡ ${streak} día${streak>1?'s':''} seguido${streak>1?'s':''}`;
+  else if (streak < 30)  streakMsg = `🔥 ${streak} días seguidos`;
+  else                   streakMsg = `🏆 ${streak} días seguidos`;
+  document.getElementById('streakNum').textContent = streakMsg;
 
   // 14 puntos de color
   for (let i = -13; i <= 0; i++) {
@@ -772,6 +783,18 @@ function closeLinkSheet()    { document.getElementById('linkOverlay').classList.
 function openSettingsSheet() { document.getElementById('settingsOverlay').classList.add('open'); updateReminderUI(); }
 function closeSettingsSheet(){ document.getElementById('settingsOverlay').classList.remove('open'); }
 
+// ─── EXPORTAR DATOS ───────────────────────────────────────────────────────────
+function exportData() {
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rituario-backup-${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 // ─── DELEGACIÓN DE EVENTOS ───────────────────────────────────────────────────
 document.addEventListener('click', e => {
   const t = e.target;
@@ -858,6 +881,9 @@ document.addEventListener('click', e => {
 
   // Recordatorios
   if (t.closest('#remindToggleBtn')) toggleReminders();
+
+  // Exportar datos
+  if (t.closest('#btnExportData')) exportData();
 });
 
 // ─── ARRANQUE ────────────────────────────────────────────────────────────────
