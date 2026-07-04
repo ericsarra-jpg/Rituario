@@ -23,6 +23,7 @@ let activeTab     = 'daily';
 let syncCode      = localStorage.getItem(CODE_KEY) || null;
 let suppressNextWrite = false;
 let currentUser   = null;
+let unsubscribeCloud = null;
 
 // Fecha que el usuario está viendo (por defecto hoy)
 let currentViewDate = new Date();
@@ -115,15 +116,18 @@ onAuthStateChanged(auth, user => {
     signInAnonymously(auth).catch(() => setSyncStatus('off'));
     return;
   }
+  if (syncCode && syncCode !== user.uid) {
+    state = { habits: [], log: {}, monthlyHabits: [], monthlyLog: {} };
+    render();
+  }
   syncCode = user.uid;
-  localStorage.setItem(CODE_KEY, syncCode);
-  updateAccountUI(user);
   attachCloudListener();
 });
 
 function attachCloudListener() {
   if (!syncCode) return;
-  onSnapshot(doc(db, 'rituario_users', syncCode), snap => {
+  if (unsubscribeCloud) { unsubscribeCloud(); unsubscribeCloud = null; }
+  unsubscribeCloud = onSnapshot(doc(db, 'rituario_users', syncCode), snap => {
     if (snap.exists()) {
       const cloudData = snap.data();
       const cloudTime = cloudData.updatedAt || 0;
@@ -177,6 +181,7 @@ async function signInWithGoogle() {
 }
 
 async function signOutGoogle() {
+  if (unsubscribeCloud) { unsubscribeCloud(); unsubscribeCloud = null; }
   await signOut(auth);
   localStorage.removeItem(CODE_KEY);
   syncCode = null;
