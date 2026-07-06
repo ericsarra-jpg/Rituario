@@ -2,6 +2,12 @@ import './style.css';
 import { db, auth } from './firebase.js';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, linkWithPopup, signOut } from 'firebase/auth';
+import '@fontsource/fraunces/300.css';
+import '@fontsource/fraunces/500.css';
+import '@fontsource/fraunces/600.css';
+import '@fontsource/space-grotesk/400.css';
+import '@fontsource/space-grotesk/500.css';
+import '@fontsource/space-grotesk/600.css';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const STORE_KEY       = 'rituario_v1';
